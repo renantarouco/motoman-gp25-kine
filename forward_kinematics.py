@@ -31,16 +31,16 @@ def Tx(a):
 def Rx(alpha):
   return Matrix([
     [1, 0, 0, 0],
-    [0, 1, 0, 0],
-    [0, 0, cos(alpha), -sin(alpha)],
-    [0, 0, sin(alpha), cos(alpha)]
+    [0, cos(alpha), -sin(alpha), 0],
+    [0, sin(alpha), cos(alpha), 0 ],
+    [0, 0, 0, 1]
   ])
 
 FW1 = Rz(q1) * Tz(505) * Rx(pi/2)
-FW2 = Rz(q2)
-FW3 = Rz(q3) * Tx(960) * Rx(pi/2)
-FW4 = Rz(q4) * Tz(-795) * Rx(pi/2)
-FW5 = Rz(q5) * Rx(-(pi/2))
-FW6 = Rz(q6) * Tz(-100) * Rx(pi)
+FW2 = Rz(q2) * Tx(150)
+FW3 = Rz(q3) * Rx(pi/2)
+FW4 = Rz(q4) * Tz(760) * Rx(-(pi/2))
+FW5 = Rz(q5) * Rx(pi/2)
+FW6 = Rz(q6) * Tz(795)
 
 FK = FW1 * FW2 * FW3 * FW4 * FW5 * FW6
