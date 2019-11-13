@@ -41,7 +41,19 @@ else:
 # Applie the forward kinematics to find the position of the third joint
 
 FK46 = FW4 * FW5 * FW6
-PA = FK46.inv() * PW
+PW3 = FK46.inv() * PW
 
-# Find q1, q2 and q3
+# Find the forward kinematics to transform from base to joint 3
 
+T01 = Rz(q1) * Rx(pi/2)
+T12 = Rz(q2) * Tx(760)
+T23 = Rz(q3) * Tx(200)
+
+FK03 = T01 * T12 * T23
+
+P = Matrix([
+    [FK03[3]],
+    [FK03[7]],
+    [FK03[11]],
+    [FK03[15]]
+])
