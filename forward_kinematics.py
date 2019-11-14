@@ -1,8 +1,13 @@
+from functools import reduce
+
 from sympy import *
 
-init_printing()
-q1, q2, q3, q4, q5, q6 = symbols('theta1:7')
-
+IDENTITY = Matrix([
+    [1, 0, 0, 0],
+    [0, 1, 0, 0],
+    [0, 0, 1, 0],
+    [0, 0, 0, 1]
+  ])
 
 def Rz(theta):
   return Matrix([
@@ -36,11 +41,10 @@ def Rx(alpha):
     [0, 0, 0, 1]
   ])
 
-FW1 = Rz(q1) * Tz(505) * Rx(pi/2)
-FW2 = Rz(q2) * Tx(150)
-FW3 = Rz(q3) * Rx(pi/2)
-FW4 = Rz(q4) * Tz(760) * Rx(-(pi/2))
-FW5 = Rz(q5) * Rx(pi/2)
-FW6 = Rz(q6) * Tz(795)
+def forward(link):
+  theta, d, a, alpha = link
+  return Rz(theta) * Tz(d)  * Tx(a) * Rx(alpha)
 
-FK = FW1 * FW2 * FW3 * FW4 * FW5 * FW6
+def dh_t(dh):
+  dh_matrixes = [forward(link) for link in dh]
+  return reduce(lambda x, y:  x * y, dh_matrixes)
