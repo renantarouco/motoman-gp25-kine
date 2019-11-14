@@ -57,14 +57,19 @@ P = Matrix([
 ])
 
 # Matrix of transformation from joint 4 to joint 6
-fk46 = DHForwardKine(dh[3:])
-t46 = fk46.t_matrix
+t46 = fk.link_transformation(4) * fk.link_transformation(5) * fk.link_transformation(6)
 
 angles = inverse(dh, t46, R, P)
+
+for i, joint  in enumerate(reversed(angles)):
+  for j, solution in enumerate(joint):
+    print("q" + str(len(angles)-i) + str(j+1) + " =")
+    pprint(solution)
+
 print('Done.')
 #pprint(angles)
 
-
+'''
 # Dynamics
 print('INIT DYNAMICS')
 partials = []
@@ -97,3 +102,4 @@ T = dynamics(partials, MASS, INERTIAL, Q, t)
 pprint(T)
 
 print('Done.')
+'''
