@@ -10,9 +10,6 @@ from dynamics import *
 init_printing()
 t = Symbol('t')
 q1, q2, q3, q4, q5, q6 = (Function('theta'+str(i))(t) for i in range(1, 7))
-#q1, q2, q3, q4, q5, q6 = functions('theta1:7')(t)
-#pprint(q1)
-#pprint(q2)
 
 dh = [
   (q1, 0, 0, pi/2),
@@ -23,8 +20,10 @@ dh = [
   (q6, -100, 0, 0)
 ]
 
+print('INIT FOWARD KINEMATICS')
+
 fk = DHForwardKine(dh)
-#t = fk.t_matrix
+transform = fk.t_matrix
 
 # print('---p---')
 # print(latex(fk.p()))
@@ -35,30 +34,35 @@ fk = DHForwardKine(dh)
 # print('---a---')
 # print(latex(fk.a()))
 
-# # Inverse kinematics
+print('Done.')
 
-# # Rotation Matrix
-# r1, r2, r3, r4, r5, r6, r7, r8, r9 = symbols("r1:10")
-# R = Matrix([
-#   [r1, r2, r3],
-#   [r4, r5, r6],
-#   [r7, r8, r9]
-# ])
+print('INIT INVERSE KINEMATICS')
+# Inverse kinematics
 
-# # Position
-# x, y, z = symbols("x, y, z")
-# P = Matrix([
-#   [x],
-#   [y],
-#   [z],
-#   [1]
-# ])
+# Rotation Matrix
+r1, r2, r3, r4, r5, r6, r7, r8, r9 = symbols("r1:10")
+R = Matrix([
+  [r1, r2, r3],
+  [r4, r5, r6],
+  [r7, r8, r9]
+])
 
-# # Matrix of transformation from joint 4 to joint 6
-# fk46 = DHForwardKine(dh[3:])
-# t46 = fk46.t_matrix
+# Position
+x, y, z = symbols("x, y, z")
+P = Matrix([
+  [x],
+  [y],
+  [z],
+  [1]
+])
 
-# q1, q2, q3, q4, q5, q6 = inverse(dh, t46, R, P)
+# Matrix of transformation from joint 4 to joint 6
+fk46 = DHForwardKine(dh[3:])
+t46 = fk46.t_matrix
+
+angles = inverse(dh, t46, R, P)
+print('Done.')
+#pprint(angles)
 
 
 # Dynamics
@@ -66,30 +70,30 @@ print('INIT DYNAMICS')
 partials = []
 for i in range(1, 7):
   partials.append(fk.link_transformation(i))
+
 MASS = Matrix([[1.2],
-            [2],
-            [1],
-            [0.5],
-            [1],
-            [0.7]])
+               [2],
+               [1],
+               [0.5],
+               [1],
+               [0.7]])
 
 INERTIAL = Matrix([[1.2],
-            [2],
-            [1],
-            [0.5],
-            [1],
-            [0.7]])
+                   [2],
+                   [1],
+                   [0.5],
+                   [1],
+                   [0.7]])
 
+Q = Matrix([[q1],
+                   [q2],
+                   [q3],
+                   [q4],
+                   [q5],
+                   [q6]])
 
-P = calculateLinksPosition(partials)
+T = dynamics(partials, MASS, INERTIAL, Q, t)
 
-U = calculatePotentialEnergy(P, MASS)
+pprint(T)
 
-J = calculateJacobian(partials)
-
-V, W = calculateLinksVelocity(P, J, (q1,q2,q3,q4,q5,q6), t)
-
-K = calculateKineticEnergy(V, W, MASS, INERTIAL)
-
-L = calculateLagrangian(U, K)
-pprint(L)
+print('Done.')

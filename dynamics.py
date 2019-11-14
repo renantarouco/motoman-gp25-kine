@@ -1,6 +1,6 @@
 from sympy import *
 
-def calculatePotentialEnergy(P, M, g = 9.81, n = 3):
+def potential_energy(P, M, g = 9.81, n = 3):
     U = Matrix()
     for i in range(0, n):
         h = P[2,i]
@@ -8,7 +8,7 @@ def calculatePotentialEnergy(P, M, g = 9.81, n = 3):
     
     return trigsimp(U)
 
-def calculateKineticEnergy(V, W, M, I, n = 3):
+def kinetic_energy(V, W, M, I, n = 3):
     K = Matrix()
     for i in range(0, n):
         v = V[:,i]
@@ -22,37 +22,42 @@ def calculateKineticEnergy(V, W, M, I, n = 3):
     
     return trigsimp(K)
 
-def calculateLagrangian(U, K, n = 3):
+def lagrangian(U, K, n = 3):
     L = Matrix()
     for i in range(0, n):
         LC = K[i,0] - U[i,0]
         L = L.row_insert(L.shape[0] + 1, Matrix([LC]))
     return trigsimp(L)
 
-def calculateTorque(L, q, t, n = 3):
-    cq = q[0:n,0]
-    dq = Matrix()
-    for i in range(0,n):
+def torque(L, Q, t, n = 3):
+    CQ = Q[0:n,0]
+    DQ = diff(CQ, t)
 
-        dq = dq.row_insert(dq.shape[0] + 1, Matrix([diff(q[i], t)]))
+    T = Matrix()
+    for i in range(0, n):
+        LDT = diff(L[i,0], DQ[i,0], t)
+        LDQ = diff(L[i,0], CQ[i,0])
+        T = T.row_insert(T.shape[0] + 1, Matrix([LDT - LDQ]))
 
-def calculateLinksVelocity(P, J, q, t, n = 3):
+    return trigsimp(T)
+
+def links_velocity(P, J, Q, t, n = 3):
     V = diff(P, t)
     
-    dq = Matrix()
-    for i in range(0,n):
-        dq = dq.row_insert(dq.shape[0] + 1, Matrix([diff(q[i], t)]))
+    CQ = Q[0:n,0]
+    DQ = diff(CQ, t)
+
 
     JW = J[3:7,:]
     W = Matrix()
     CW = Matrix([[0],[0],[0]])
     for i in range(0, n):
-        CW += JW[:,i] * dq[i,0]
+        CW += JW[:,i] * CQ[i,0]
         W = W.col_insert(W.shape[1] + 1, CW)
 
     return trigsimp(V), trigsimp(W)
 
-def calculateLinksPosition(T, n = 3):
+def links_position(T, n = 3):
     P = Matrix()
     TACC = Matrix.eye(4)
     trans = Matrix([[0],[0],[0]])
@@ -64,7 +69,7 @@ def calculateLinksPosition(T, n = 3):
         trans = CT[0:3,3]
     return trigsimp(P)
 
-def calculateJacobian(T, n = 3):
+def jacobian(T, n = 3):
     trans = Matrix()
     A = Matrix.eye(4)
     for i in range(0,n):
@@ -85,3 +90,14 @@ def calculateJacobian(T, n = 3):
 
     
     return trigsimp(J)
+
+def dynamics(T, MASS, INERTIAL, Q, t, n = 3):
+    P = links_position(T, 3)
+    U = potential_energy(P, MASS, 3)
+    J = jacobian(T, 3)
+    V, W = links_velocity(P, J, Q, t, 3)
+    K = kinetic_energy(V, W, MASS, INERTIAL, 3)
+    L = lagrangian(U, K, 3)
+    T = torque(L, Q, t, 3)
+    #pass to states space
+    return T
