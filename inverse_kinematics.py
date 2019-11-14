@@ -1,5 +1,4 @@
 from sympy import *
-from gp25 import *
 
 def inverse(dh, FK46, R, P):
     # Find q4, q5 and q6 by the orientation of the wrist

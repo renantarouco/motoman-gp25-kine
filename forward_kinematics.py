@@ -1,13 +1,12 @@
 from functools import reduce
 
 from sympy import *
-from dynamics import *
 
 class DHForwardKine:
   def __init__(self, dh_table):
     self.dh_table = dh_table
     self.link_matrixes = [self.forward_link(link) for link in self.dh_table]
-    self.t_matrix = trigsimp(simplify(reduce(lambda x, y:  x * y, self.link_matrixes)))
+    #self.t_matrix = trigsimp(simplify(reduce(lambda x, y:  x * y, self.link_matrixes)))
 
   def rz(self, theta):
     return Matrix([

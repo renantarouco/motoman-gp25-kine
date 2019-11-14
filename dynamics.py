@@ -1,14 +1,15 @@
 from sympy import *
 
 def calculatePotentialEnergy(P, M, g = 9.81, n = 3):
-    U = 0
+    U = Matrix()
     for i in range(0, n):
         h = P[2,i]
-        U += M[i,0] * h * g
-    return U
+        U = U.row_insert(U.shape[0] + 1, Matrix([M[i,0] * h * g]))
+    
+    return trigsimp(U)
 
 def calculateKineticEnergy(V, W, M, I, n = 3):
-    K = 0
+    K = Matrix()
     for i in range(0, n):
         v = V[:,i]
         w = W[:,i]
@@ -17,10 +18,27 @@ def calculateKineticEnergy(V, W, M, I, n = 3):
 
         KC = 0.5*m*v.dot(v) + 0.5*i*w.dot(w)
 
-        K += KC
-    return KC
+        K = K.row_insert(K.shape[0] + 1, Matrix([KC]))
+    
+    return trigsimp(K)
 
-def calculateLinksCenterMass(T, n = 3):
+def calculateLinksVelocity(P, J, q, t, n = 3):
+    V = diff(P, t)
+    
+    dq = Matrix()
+    for i in range(0,n):
+        dq = dq.row_insert(dq.shape[0] + 1, Matrix([diff(q[i], t)]))
+
+    JW = J[3:7,:]
+    W = Matrix()
+    CW = Matrix([[0],[0],[0]])
+    for i in range(0, n):
+        CW += JW[:,i] * dq[i,0]
+        W = W.col_insert(W.shape[1] + 1, CW)
+
+    return trigsimp(V), trigsimp(W)
+
+def calculateLinksPosition(T, n = 3):
     P = Matrix()
     TACC = Matrix.eye(4)
     trans = Matrix([[0],[0],[0]])
@@ -28,16 +46,16 @@ def calculateLinksCenterMass(T, n = 3):
         TACC = TACC * T[i]
         CT = TACC.copy()
         A = (CT[0:3,3] - trans)/2 + trans
-        P = P.col_insert(P.shape[1] + 1, A)# .cross())
+        P = P.col_insert(P.shape[1] + 1, A)
         trans = CT[0:3,3]
-    return P
+    return trigsimp(P)
 
 def calculateJacobian(T, n = 3):
-    trans = [Matrix([[0],[0],[0]])]
+    trans = Matrix()
     A = Matrix.eye(4)
     for i in range(0,n):
         A = A * T[i]
-        trans.append(A[0:3, 3])
+        trans = trans.col_insert(trans.shape[1] + 1, A[0:3, 3])
     
     J = Matrix()
 
@@ -47,8 +65,9 @@ def calculateJacobian(T, n = 3):
         rot = T[i][0:3, 0:3]
         A = A * rot
         Z = Z.col_insert(Z.shape[1] + 1, A * Z[:,0])
-
-    for i in range(0, n):
-        J = J.col_insert(J.shape[1] + 1, Matrix([Z[:,i].cross(trans[n] - trans[i]), Z[:,i]]))
     
-    return J
+    for i in range(0, n):
+        J = J.col_insert(J.shape[1] + 1, Matrix([Z[:,i].cross(trans[:,n-1] - trans[:,i]), Z[:,i]]))
+
+    
+    return trigsimp(J)
