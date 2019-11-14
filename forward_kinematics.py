@@ -46,17 +46,25 @@ FW6 = Rz(q6) * Tz(795)
 
 FK = FW1 * FW2 * FW3 * FW4 * FW5 * FW6
 
+
+## TESTING DYNAMICS
 transforms = [FW1, FW2, FW3, FW4, FW5, FW6]
 
-M = Matrix([[1.2],
+MASS = Matrix([[1.2],
             [2],
             [1],
             [0.5],
             [1],
             [0.7]])
 
+
 P = calculateLinksCenterMass(transforms)
+
+pprint(P)
+V = diff(P, q1)
+pprint(V)
+
+
 J = calculateJacobian(transforms)
-U = calculatePotentialEnergy(P, M)
-pprint(U)
+U = calculatePotentialEnergy(P, MASS)
 
