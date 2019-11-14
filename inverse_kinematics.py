@@ -24,7 +24,7 @@ PW = Matrix([
     [px],
     [py],
     [pz],
-    [1]  # 0 or 1 ?
+    [1]
 ])
 
 # Find q4, q5 and q6
@@ -51,9 +51,14 @@ T23 = Rz(q3) * Tx(200)
 
 FK03 = T01 * T12 * T23
 
+# Matrix that represent third joint's position
 P = Matrix([
     [FK03[3]],
     [FK03[7]],
     [FK03[11]],
     [FK03[15]]
 ])
+
+# Find q1, q2 and q3
+
+t = P[0]**2 + P[1]**2 + P[2]**2
