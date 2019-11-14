@@ -1,4 +1,5 @@
 from sympy import *
+from dynamics import *
 
 init_printing()
 q1, q2, q3, q4, q5, q6 = symbols('theta1:7')
@@ -44,3 +45,18 @@ FW5 = Rz(q5) * Rx(pi/2)
 FW6 = Rz(q6) * Tz(795)
 
 FK = FW1 * FW2 * FW3 * FW4 * FW5 * FW6
+
+transforms = [FW1, FW2, FW3, FW4, FW5, FW6]
+
+M = Matrix([[1.2],
+            [2],
+            [1],
+            [0.5],
+            [1],
+            [0.7]])
+
+P = calculateLinksCenterMass(transforms)
+J = calculateJacobian(transforms)
+U = calculatePotentialEnergy(P, M)
+pprint(U)
+
