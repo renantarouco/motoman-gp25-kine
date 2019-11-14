@@ -1,7 +1,7 @@
 from sympy import *
 from gp25 import *
 
-def inverse(dh, FK, R, P):
+def inverse(dh, FK46, R, P):
     # Find q4, q5 and q6 by the orientation of the wrist
 
     q4 = [atan2(R[2], R[5]), atan2(-R[2], -R[5])]
@@ -10,7 +10,6 @@ def inverse(dh, FK, R, P):
 
     # Applie the forward kinematics to find the position of the third joint
 
-    FK46 = dh_t(dh[3:])
     PW = FK46.inv() * P
 
     # Find q1, q2 and q3 by the position of the wrist
@@ -40,4 +39,4 @@ def inverse(dh, FK, R, P):
 
     q1 = [atan2(PW[1], PW[0]), atan2(-PW[1], -PW[0])]
 
-    return [q1, q2, q3, q4, q5, q6]
+    return q1, q2, q3, q4, q5, q6
