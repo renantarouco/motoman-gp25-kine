@@ -1,59 +1,42 @@
 from sympy import *
-from forward_kinematics import *
+from gp25 import *
 
-# Given the orientation of the wrist
+def inverse(dh, FK46, R, P):
+    # Find q4, q5 and q6 by the orientation of the wrist
 
-r1, r2, r3, r4, r5, r6, r7, r8, r9 = symbols('r1:10')
+    q4 = [atan2(R[2], R[5]), atan2(-R[2], -R[5])]
+    q5 = [atan2(sqrt(R[2]**2 + R[5]**2), R[8]), atan2(-sqrt(R[2]**2 + R[5]**2), R[8])]
+    q6 = [atan2(R[7], -R[6]), atan2(-R[7], R[6])]
 
-R = Matrix([
-    [r1, r2, r3],
-    [r4, r5, r6],
-    [r7, r8, r9]
-])
+    # Applie the forward kinematics to find the position of the third joint
 
-# Given the signal of the angle theta5
-# True = + and False = -
+    PW = FK46.inv() * P
 
-sigq5 = True
+    # Find q1, q2 and q3 by the position of the wrist
 
-# Given the end-effector position
+    a2 = dh[1][2]
+    a3 = dh[2][2]
 
-px, py, pz = symbols('px, py, pz')
+    c3 = (PW[0]**2 + PW[1]**2 + PW[2]**2 - a2**2 - a3**2) / (2 * a2 * a3)
+    s3 = sqrt(1-c3)
+    q3 = [atan2(s3,c3), -atan2(s3,c3)]
 
-PW = Matrix([
-    [px],
-    [py],
-    [pz],
-    [1]  # 0 or 1 ?
-])
+    # +s3
+    s21 = (a2 + a3*c3)*PW[2] - a3*s3*sqrt(PW[0]**2 + PW[1]**2)
+    s22 = (a2 + a3*c3)*PW[2] + a3*s3*sqrt(PW[0]**2 + PW[1]**2)
+    c21 = (a2+a3*c3)*sqrt(PW[0]**2 + PW[1]**2) + a3*s3*PW[2]
+    c22 = -(a2+a3*c3)*sqrt(PW[0]**2 + PW[1]**2) + a3*s3*PW[2]
+    q2 = [atan2(s21,c21), atan2(s22,c22)]
 
-# Find q4, q5 and q6
+    # -s3
+    s3 = -s3
+    s21 = (a2 + a3*c3)*PW[2] - a3*s3*sqrt(PW[0]**2 + PW[1]**2)
+    s22 = (a2 + a3*c3)*PW[2] + a3*s3*sqrt(PW[0]**2 + PW[1]**2)
+    c21 = (a2+a3*c3)*sqrt(PW[0]**2 + PW[1]**2) + a3*s3*PW[2]
+    c22 = -(a2+a3*c3)*sqrt(PW[0]**2 + PW[1]**2) + a3*s3*PW[2]
+    q2.append(atan2(s21,c21))
+    q2.append(atan2(s22,c22))
 
-if sigq5:
-    q4 = atan2(R[2], R[5])
-    q5 = atan2(sqrt(R[2]**2 + R[5]**2), R[8])
-    q6 = atan2(R[7], -R[6])
-else:
-    q4 = atan2(-R[2], -R[5])
-    q5 = atan2(-sqrt(R[2]**2 + R[5]**2), R[8])
-    q6 = atan2(-R[7], R[6])
+    q1 = [atan2(PW[1], PW[0]), atan2(-PW[1], -PW[0])]
 
-# Applie the forward kinematics to find the position of the third joint
-
-FK46 = FW4 * FW5 * FW6
-PW3 = FK46.inv() * PW
-
-# Find the forward kinematics to transform from base to joint 3
-
-T01 = Rz(q1) * Rx(pi/2)
-T12 = Rz(q2) * Tx(760)
-T23 = Rz(q3) * Tx(200)
-
-FK03 = T01 * T12 * T23
-
-P = Matrix([
-    [FK03[3]],
-    [FK03[7]],
-    [FK03[11]],
-    [FK03[15]]
-])
+    return q1, q2, q3, q4, q5, q6
