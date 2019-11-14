@@ -55,16 +55,16 @@ q1, q2, q3, q4, q5, q6 = inverse(dh, t46, R, P)
 
 
 # Dynamics
-# MASS = Matrix([[1.2],
-#             [2],
-#             [1],
-#             [0.5],
-#             [1],
-#             [0.7]])
+MASS = Matrix([[1.2],
+            [2],
+            [1],
+            [0.5],
+            [1],
+            [0.7]])
 
 
-# P = calculateLinksCenterMass(transforms)
+P = calculateLinksCenterMass(transforms)
 
-# pprint(P)
-# V = diff(P, q1)
-# pprint(V)
+pprint(P)
+V = diff(P, q1)
+pprint(V)

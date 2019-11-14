@@ -1,12 +1,24 @@
 from sympy import *
 
-#funcao nao foi bem testada por causa que o calculateLinksCenterMass
 def calculatePotentialEnergy(P, M, g = 9.81, n = 3):
     U = 0
     for i in range(0, n):
         h = P[2,i]
         U += M[i,0] * h * g
     return U
+
+def calculateKineticEnergy(V, W, M, I, n = 3):
+    K = 0
+    for i in range(0, n):
+        v = V[:,i]
+        w = W[:,i]
+        m = M[i,0]
+        i = I[i,0]
+
+        KC = 0.5*m*v.dot(v) + 0.5*i*w.dot(w)
+
+        K += KC
+    return KC
 
 def calculateLinksCenterMass(T, n = 3):
     P = Matrix()
@@ -37,7 +49,6 @@ def calculateJacobian(T, n = 3):
         Z = Z.col_insert(Z.shape[1] + 1, A * Z[:,0])
 
     for i in range(0, n):
-        # J.col_insert(-1, Matrix(z[i].cross(trans[3] - trans[i]), [z[i]]))
         J = J.col_insert(J.shape[1] + 1, Matrix([Z[:,i].cross(trans[n] - trans[i]), Z[:,i]]))
     
     return J
