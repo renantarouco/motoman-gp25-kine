@@ -6,6 +6,7 @@ class DHForwardKine:
   def __init__(self, dh_table):
     self.dh_table = dh_table
     self.link_matrixes = [self.forward_link(link) for link in self.dh_table]
+    self.t_matrix = trigsimp(simplify(reduce(lambda x, y:  x * y, self.link_matrixes)))
 
   def rz(self, theta):
     return Matrix([
@@ -41,12 +42,21 @@ class DHForwardKine:
 
   def forward_link(self, link):
     theta, d, a, alpha = link
-    return self.rz(theta) * self.tz(d)  * self.tx(a) * self.rx(alpha)
-
-  def tranformation_matrix(self):
-    return reduce(lambda x, y:  x * y, self.link_matrixes)
+    return simplify(self.rz(theta) * self.tz(d)  * self.tx(a) * self.rx(alpha))
 
   def link_transformation(self, link_id):
     if link_id == 0 or link_id > len(self.link_matrixes):
       return None
     return self.link_matrixes[link_id - 1]
+  
+  def p(self):
+    return self.t_matrix.col(-1).row_del(-1)
+
+  def n(self):
+    return self.t_matrix.col(0).row_del(-1)
+
+  def s(self):
+    return self.t_matrix.col(1).row_del(-1)
+  
+  def a(self):
+    return self.t_matrix.col(2).row_del(-1)
