@@ -14,9 +14,9 @@ def kinetic_energy(V, W, M, I, n = 3):
         v = V[:,i]
         w = W[:,i]
         m = M[i,0]
-        i = I[i,0]
+        i = I[i]
 
-        KC = 0.5*m*v.dot(v) + 0.5*i*w.dot(w)
+        KC = 0.5*m*v.dot(v) + 0.5*w.dot(i*w)
 
         K = K.row_insert(K.shape[0] + 1, Matrix([KC]))
     

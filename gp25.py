@@ -71,19 +71,26 @@ partials = []
 for i in range(1, 7):
   partials.append(fk.link_transformation(i))
 
-MASS = Matrix([[1.2],
-               [2],
-               [1],
-               [0.5],
-               [1],
+MASS = Matrix([[5.0],
+               [3.6],
+               [2.4],
+               [2.8],
+               [3],
                [0.7]])
 
-INERTIAL = Matrix([[1.2],
-                   [2],
-                   [1],
-                   [0.5],
-                   [1],
-                   [0.7]])
+Ixx1 = 0.00455; Ixy1 =  0.00000; Ixz1 = 0.00000; Iyy1 = 0.00454; Iyz1 = 0.00001; Izz1 = 0.00029
+Ixx2 = 0.00032; Ixy2 =  0.00000; Ixz2 = 0.00000; Iyy2 = 0.00010; Iyz2 = 0.00000; Izz2 = 0.00042
+Ixx3 = 0.00223; Ixy3 = -0.00005; Ixz3 = 0.00007; Iyy3 = 0.00219; Iyz3 = 0.00007; Izz3 = 0.00073
+
+I1 = Matrix([[Ixx1, -Ixy1, -Ixz1],
+             [-Ixy1, Iyy1, -Iyz1],
+             [-Ixz1, -Iyz1, Izz1],])
+I2 = Matrix([[Ixx2, -Ixy2, -Ixz2],
+             [-Ixy2, Iyy2, -Iyz2],
+             [-Ixz2, -Iyz2, Izz2],])
+I3 = Matrix([[Ixx3, -Ixy3, -Ixz3],
+             [-Ixy3, Iyy3, -Iyz3],
+             [-Ixz3, -Iyz3, Izz3],])
 
 Q = Matrix([[q1],
                    [q2],
@@ -92,7 +99,7 @@ Q = Matrix([[q1],
                    [q5],
                    [q6]])
 
-T = dynamics(partials, MASS, INERTIAL, Q, t)
+T = dynamics(partials, MASS, (I1, I2, I3), Q, t)
 
 pprint(T)
 
