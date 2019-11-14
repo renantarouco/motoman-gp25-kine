@@ -90,6 +90,6 @@ J = calculateJacobian(partials)
 V, W = calculateLinksVelocity(P, J, (q1,q2,q3,q4,q5,q6), t)
 
 K = calculateKineticEnergy(V, W, MASS, INERTIAL)
-pprint(K)
-#V = diff(P, q1)
-#pprint(J)
+
+L = calculateLagrangian(U, K)
+pprint(L)

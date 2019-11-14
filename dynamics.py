@@ -22,6 +22,20 @@ def calculateKineticEnergy(V, W, M, I, n = 3):
     
     return trigsimp(K)
 
+def calculateLagrangian(U, K, n = 3):
+    L = Matrix()
+    for i in range(0, n):
+        LC = K[i,0] - U[i,0]
+        L = L.row_insert(L.shape[0] + 1, Matrix([LC]))
+    return trigsimp(L)
+
+def calculateTorque(L, q, t, n = 3):
+    cq = q[0:n,0]
+    dq = Matrix()
+    for i in range(0,n):
+
+        dq = dq.row_insert(dq.shape[0] + 1, Matrix([diff(q[i], t)]))
+
 def calculateLinksVelocity(P, J, q, t, n = 3):
     V = diff(P, t)
     
